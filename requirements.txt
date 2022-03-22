@@ -1,0 +1,6 @@
+tensorflow==2.6.0
+tensorboard==2.6.0
+numpy==1.19.5
+mido==1.2.6
+pytest==6.2.5
+ordered-set==4.0.2
