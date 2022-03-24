@@ -1,17 +1,12 @@
 import pickle
 
-import src.midi_generator as mg
-import src.song_loader as sl
-import src.song_parser as sp
-import src.song_matrix_generator as smg
-import src.song_range_seperator as srs
+import src.midi_generator as midi_generator
+import src.dataset_note_info_generator as note_generator
 
 with open('./data/JSB Chorales.pickle', 'rb') as file:
     dataset = pickle.load(file)
 
-song = sl.load_song('data/5.kafka')
-note_infos = sp.get_note_infos(song)
+test_song = dataset['test'][0]
+track_note_infos = note_generator.generate_note_info(test_song)
 
-track_note_infos = srs.get_tracks_by_range(note_infos)
-
-mg.generate_midi('file.mid', [note_infos] + track_note_infos)
+midi_generator.generate_midi('file.mid', track_note_infos)
