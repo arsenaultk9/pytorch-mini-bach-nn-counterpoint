@@ -1,0 +1,8 @@
+1. Bath process input data of bach chorals
+2. track_note_infos to matrix data of fixed sized input (no window slide)
+3. MNist example of network for pytorch
+4. Make feedforward network for counterpoint genertation
+5. Graph training evolution
+
+
+???. Use chords with training data
