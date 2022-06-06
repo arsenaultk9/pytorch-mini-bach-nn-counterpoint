@@ -5,3 +5,13 @@ class Range:
 
     def range_and_silence_length(self):
         return self.max_note - self.min_note + 1
+
+
+    def is_in_range(self, note_number):
+        if note_number < self.min_note:
+            return False
+
+        if note_number > self.max_note:
+            return False
+
+        return True
