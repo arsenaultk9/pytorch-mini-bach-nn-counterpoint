@@ -17,3 +17,6 @@ def get_to_one_hot_encoding(song: list, voice: Voice):
 
         hot_encoding_note_pos = voice_note - voice.range.min_note + 1
         one_hot_encoding[song_position][hot_encoding_note_pos] = 1
+
+
+    return one_hot_encoding

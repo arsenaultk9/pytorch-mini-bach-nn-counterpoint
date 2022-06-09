@@ -4,7 +4,7 @@ class Range:
         self.max_note = max_note
 
     def range_and_silence_length(self):
-        return self.max_note - self.min_note + 1
+        return (self.max_note - self.min_note + 1) + 1 # Range + 1 position for silence encoding
 
 
     def is_in_range(self, note_number):
