@@ -1,20 +1,10 @@
-import pickle
 
 import src.midi_generator as midi_generator
 import src.dataset_note_info_generator as note_generator
 
-from src.dataset_one_hot_encoder import get_to_one_hot_encoding
-from src.models.voices import voices
+from src.data_loader import load_data
 
-with open('./data/JSB Chorales.pickle', 'rb') as file:
-    dataset = pickle.load(file)
-
-
-train_hot_encodings = []
-for song in dataset['train']:
-    for voice in voices.values():
-        one_hot_encoding = get_to_one_hot_encoding(song, voice)
-        train_hot_encodings.append(one_hot_encoding)
+dataset = load_data()
 
 # ==== Code to generate to midi. ====
 train_song = dataset['train'][0]

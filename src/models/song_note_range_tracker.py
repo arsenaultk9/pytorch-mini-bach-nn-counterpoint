@@ -12,7 +12,7 @@ class SongNoteRangeTracker:
         self.prev_note = note
         self.prev_song_segment = song_segment
 
-        return note
+        return int(note)
 
     # Note: Could use a better technique, but since we only do a forward pass, this is the least problematic resolution.
     def get_first_note_missing_in_tuple(self, song_segment):

@@ -3,8 +3,8 @@ from src.models.song_note_range_tracker import SongNoteRangeTracker
 from src.models.voices import voices
 
 
-with open('./data/JSB Chorales.pickle', 'rb') as file:
-    dataset = pickle.load(file)
+with open('./data/jsb-chorales-16th.pkl', 'rb') as file:
+    dataset = pickle.load(file, encoding="latin1")
 
 lowest_note = 127
 highest_note = 0
@@ -21,8 +21,8 @@ for song in (dataset['train'] + dataset['test'] + dataset['valid']):
         if len(song_segment) == 0:
             continue
 
-        highest_note = max(highest_note, max(song_segment))
-        lowest_note = min(lowest_note, min(song_segment))
+        highest_note = int(max(highest_note, max(song_segment)))
+        lowest_note = int(min(lowest_note, min(song_segment)))
 
     for voice_name in voice_ranges.keys():
         voice = voices[voice_name]
