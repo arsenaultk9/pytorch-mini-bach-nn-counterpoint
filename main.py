@@ -6,12 +6,15 @@ import src.dataset_note_info_generator as note_generator
 from src.data_loader import load_data
 
 midi_data, dataset = load_data()
-x_soprano, y_alto, y_tenor, y_bass = dataset[0]
+data_loader = DataLoader(dataset)
 
-print(x_soprano.shape)
-print(y_alto.shape)
-print(y_tenor.shape)
-print(y_bass.shape)
+for batch_idx, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(data_loader):
+    print(f'batch # {batch_idx}')
+
+    print(x_soprano.shape)
+    print(y_alto.shape)
+    print(y_tenor.shape)
+    print(y_bass.shape)
 
 # ==== Code to generate to midi. ====
 train_song = midi_data['train'][0]

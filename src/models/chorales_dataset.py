@@ -12,7 +12,7 @@ class ChoralesDataset(Dataset):
         self.length = len(sequence_data['soprano'])
 
     def __len__(self):
-        self.length
+        return self.length
 
     def __getitem__(self, idx):
-        return self.X_soprano[idx], self.Y_alto[idx], self.Y_tenor[idx], self.Y_bass[idx]
+        return (self.X_soprano[idx], self.Y_alto[idx], self.Y_tenor[idx], self.Y_bass[idx])
