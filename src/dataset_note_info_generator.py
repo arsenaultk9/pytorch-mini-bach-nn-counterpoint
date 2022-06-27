@@ -42,7 +42,7 @@ def get_track_notes(dataset_song, track_number: int) -> List[NoteInfo]:
 # (71, 74, 79, 86)
 # (73, 77, 81, 88)
 
-# Note: When a voice is missing, there are no None placeholder, so in the SATB voices the highest pitch are automatically penelized
+# Note: When a voice is missing, there are no None placeholder, so in the SATB voices the highest pitch are automatically penalized
 # although the silence note could be in a lower voice which is hard to deduce.
 
 
