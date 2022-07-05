@@ -1,5 +1,5 @@
 import torch
-import torch.nn.functional as F
+import torch.nn as F
 import torch.optim as optim
 
 import src.constants as constants
@@ -12,6 +12,7 @@ class NetworkTrainer:
         self.network = network
         self.data_loader = data_loader
         self.optimizer = optim.Adadelta(network.parameters(), lr=constants.OPTIMIZER_ADAM_LR)
+        self.loss_function = F.CrossEntropyLoss()
 
     def epoch_train(self, epoch):
         self.network.train()
@@ -26,13 +27,17 @@ class NetworkTrainer:
             self.optimizer.zero_grad()
             output_alto, output_tenor, output_bass = self.network(x_soprano)
 
-            raise Exception('Must continue this code')
-            loss = F.nll_loss(output, target)
-            loss.backward()
-            optimizer.step()
+            loss_alto = self.loss_function(output_alto, y_alto)
+            loss_tenor = self.loss_function(output_tenor, y_tenor)
+            loss_bass = self.loss_function(output_bass, y_bass)
+
+            loss_total = loss_alto + loss_tenor + loss_bass
+
+            loss_total.backward()
+            self.optimizer.step()
 
             if batch_idx % constants.LOG_INTERVAL == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    epoch, batch_idx * len(data), len(data_loader.dataset),
-                    100. * batch_idx / len(data_loader), loss.item()))
+                    epoch, batch_idx * len(x_soprano), len(self.data_loader.dataset),
+                    100. * batch_idx / len(self.data_loader), loss_total.item()))
 
