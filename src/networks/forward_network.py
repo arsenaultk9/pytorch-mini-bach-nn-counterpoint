@@ -26,22 +26,19 @@ class ForwardNetwork(nn.Module):
         # alto
         x_alto = self.forward_alto(x)
         x_alto = F.relu(x_alto)
-        x_alto = torch.reshape(x_alto, (1, constants.SEQUENCE_LENGTH, 22))
-        y_alto = F.softmax(x_alto, dim=2) # Calculate for each part of sequence & not on whole sequence
-        # TODO: Use log_softmax instead?
+        x_alto = torch.reshape(x_alto, (constants.SEQUENCE_LENGTH, 22))
+        y_alto = F.log_softmax(x_alto, dim=1) # Calculate for each part of sequence & not on whole sequence
 
         # tenor
         x_tenor = self.forward_tenor(x)
         x_tenor = F.relu(x_tenor)
-        x_tenor = torch.reshape(x_tenor, (1, constants.SEQUENCE_LENGTH, 22))
-        y_tenor = F.softmax(x_tenor, dim=2) # Calculate for each part of sequence & not on whole sequence
-        # TODO: Use log_softmax instead?
+        x_tenor = torch.reshape(x_tenor, (constants.SEQUENCE_LENGTH, 22))
+        y_tenor = F.log_softmax(x_tenor, dim=1) # Calculate for each part of sequence & not on whole sequence
 
         # bass
         x_bass = self.forward_bass(x)
         x_bass = F.relu(x_bass)
-        x_bass = torch.reshape(x_bass, (1, constants.SEQUENCE_LENGTH, 29))
-        y_bass = F.softmax(x_bass, dim=2) # Calculate for each part of sequence & not on whole sequence
-        # TODO: Use log_softmax instead?
+        x_bass = torch.reshape(x_bass, (constants.SEQUENCE_LENGTH, 29))
+        y_bass = F.log_softmax(x_bass, dim=1) # Calculate for each part of sequence & not on whole sequence
 
         return y_alto, y_tenor, y_bass

@@ -11,22 +11,11 @@ class NetworkTrainer:
     def __init__(self, network, data_loader):
         self.network = network
         self.data_loader = data_loader
-        self.optimizer = optim.Adadelta(network.parameters(), lr=constants.OPTIMIZER_ADAM_LR)
-        self.loss_function = F.CrossEntropyLoss()
+        self.optimizer = optim.SGD(network.parameters(), lr=0.01, momentum=0.9)
+        self.loss_function = F.NLLLoss()
 
     def get_instrument_loss(self, model_output, y_target):
-        instrument_losses = 0
-
-        for pos_index in range(constants.SEQUENCE_LENGTH):
-            output_slice = model_output[:,pos_index]
-            y_target_slice = y_target[:,pos_index] #.nonzero()[0][1].reshape(1, 1)
-
-            # TODO: Use NLL Loss instead.
-
-            current_loss = self.loss_function(output_slice, y_target_slice)
-            instrument_losses += current_loss
-
-        return instrument_losses
+        return self.loss_function(model_output, torch.squeeze(y_target))
 
     def epoch_train(self, epoch):
         self.network.train()
