@@ -7,6 +7,7 @@ import src.constants as constants
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
+
 class NetworkTrainer:
     def __init__(self, network, data_loader):
         self.network = network
@@ -16,6 +17,18 @@ class NetworkTrainer:
 
     def get_instrument_loss(self, model_output, y_target):
         return self.loss_function(model_output, torch.squeeze(y_target))
+
+    def get_total_right_predictions(self, model_output, y_target):
+        total_right_predictions = 0
+
+        for slice_index in range(constants.SEQUENCE_LENGTH):
+            model_prediction = torch.argmax(model_output[slice_index])
+            target_prediction = y_target[0][slice_index]
+
+            if model_prediction == target_prediction:
+                total_right_predictions += 1
+
+        return total_right_predictions
 
     def epoch_train(self, epoch):
         self.network.train()
@@ -39,7 +52,20 @@ class NetworkTrainer:
             self.optimizer.step()
 
             if batch_idx % constants.LOG_INTERVAL == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    epoch, batch_idx * len(x_soprano), len(self.data_loader.dataset),
-                    100. * batch_idx / len(self.data_loader), loss_total.item()))
+                alto_right_predictions = self.get_total_right_predictions(
+                    output_alto, y_alto)
+                tenor_right_predictions = self.get_total_right_predictions(
+                    output_tenor, y_tenor)
+                bass_right_predictions = self.get_total_right_predictions(
+                    output_bass, y_bass)
 
+                total_right_predictions = alto_right_predictions + \
+                    tenor_right_predictions + bass_right_predictions
+
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tTotal Right Predictions: {}'.format(
+                    epoch,
+                    batch_idx * len(x_soprano),
+                    len(self.data_loader.dataset),
+                    100. * batch_idx / len(self.data_loader),
+                    loss_total.item(),
+                    total_right_predictions))
