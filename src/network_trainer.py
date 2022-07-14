@@ -1,15 +1,16 @@
 import torch
 import torch.nn as F
 import torch.optim as optim
+from torch.utils.data import DataLoader
 
 import src.constants as constants
+from src.networks.forward_network import ForwardNetwork
 
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
-
 class NetworkTrainer:
-    def __init__(self, network, data_loader):
+    def __init__(self, network: ForwardNetwork, data_loader: DataLoader):
         self.network = network
         self.data_loader = data_loader
         self.optimizer = optim.SGD(network.parameters(), lr=0.01, momentum=0.9)

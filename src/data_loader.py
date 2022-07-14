@@ -1,5 +1,4 @@
 import pickle
-import numpy as np
 
 from src.dataset_one_hot_encoder import get_to_one_hot_encoding
 from src.sequence_length_splitter import split_into_sequences
