@@ -26,11 +26,18 @@ for epoch in range(1, constants.EPOCHS + 1):
 network.eval()
 
 # ==== Code to generate to midi. ====
-harmony_generator = NetworkHarmonyGenerator(network)
-(x_soprano_sample, _, _, _) = dataset[0]
-generated_song = harmony_generator.generate_harmony(x_soprano_sample)
+for song_index in range(9):
+    print(f'Generating song {song_index + 1}')
 
-#generated_song = midi_data['train'][0]
-track_note_infos = note_generator.generate_note_info(generated_song)
+    harmony_generator = NetworkHarmonyGenerator(network)
+    (x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[song_index]
 
-midi_generator.generate_midi('file.mid', track_note_infos)
+    generated_song = harmony_generator.generate_harmony(x_soprano_sample)
+    original_song = harmony_generator.imitate_harmony(
+        x_soprano_sample, y_alto, y_tenor, y_bass)
+
+    generated_note_infos = note_generator.generate_note_info(generated_song)
+    original_note_infos = note_generator.generate_note_info(original_song)
+
+    midi_generator.generate_midi(f'generated_file{song_index + 1}.mid', generated_note_infos)
+    midi_generator.generate_midi(f'original_file{song_index + 1}.mid', original_note_infos)
