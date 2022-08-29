@@ -15,7 +15,7 @@ device = torch.device("cuda" if use_cuda else "cpu")
 
 midi_data, dataset = load_data()
 
-data_loader = DataLoader(dataset, constants.BATCH_SIZE)
+data_loader = DataLoader(dataset, constants.BATCH_SIZE, constants.SHUFFLE_DATA)
 network = ForwardNetwork().to(device)
 trainer = NetworkTrainer(network, data_loader)
 
