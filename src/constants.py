@@ -5,3 +5,4 @@ SEQUENCE_LENGTH = 16 * 4 # Four measure of 16 notes segments
 LOG_INTERVAL = 100
 OPTIMIZER_ADAM_LR = 1.0
 EPOCHS = 90
+BATCH_SIZE = 4

@@ -17,13 +17,15 @@ class NetworkTrainer:
         self.loss_function = F.NLLLoss()
 
     def get_instrument_loss(self, model_output, y_target):
-        return self.loss_function(model_output, torch.squeeze(y_target))
+        return self.loss_function(model_output, y_target)
 
     def get_total_right_predictions(self, model_output, y_target):
         total_right_predictions = 0
 
+        model_transposed = model_output[0].transpose(0, 1)
+
         for slice_index in range(constants.SEQUENCE_LENGTH):
-            model_prediction = torch.argmax(model_output[slice_index])
+            model_prediction = torch.argmax(model_transposed[slice_index])
             target_prediction = y_target[0][slice_index]
 
             if model_prediction == target_prediction:

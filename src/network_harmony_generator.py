@@ -29,12 +29,18 @@ class NetworkHarmonyGenerator:
     def generate_harmony(self, x_soprano: torch.Tensor):
         harmony_notes = []
 
-        x_soprano = x_soprano.to(device)[None, :]
+        x_soprano = x_soprano.to(device)
         y_alto, y_tenor, y_bass = self.network(x_soprano)
+
+        # Only use first batch result and flip dimensions so notes are last dimension and time first dimension for model output
+        x_soprano = x_soprano[0]
+        y_alto = y_alto[0].transpose(0, 1)
+        y_tenor = y_tenor[0].transpose(0, 1)
+        y_bass = y_bass[0].transpose(0, 1)
 
         for slice_index in range(constants.SEQUENCE_LENGTH):
             soprano_note = self.get_note_number(
-                x_soprano[0], slice_index, voices['soprano'])
+                x_soprano, slice_index, voices['soprano'])
                 
             alto_note = self.get_note_number(
                 y_alto, slice_index, voices['alto'])

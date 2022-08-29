@@ -15,7 +15,7 @@ device = torch.device("cuda" if use_cuda else "cpu")
 
 midi_data, dataset = load_data()
 
-data_loader = DataLoader(dataset)
+data_loader = DataLoader(dataset, constants.BATCH_SIZE)
 network = ForwardNetwork().to(device)
 trainer = NetworkTrainer(network, data_loader)
 
@@ -30,11 +30,11 @@ for song_index in range(9):
     print(f'Generating song {song_index + 1}')
 
     harmony_generator = NetworkHarmonyGenerator(network)
-    (x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[song_index]
+    (x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[song_index:song_index+4]
 
     generated_song = harmony_generator.generate_harmony(x_soprano_sample)
     original_song = harmony_generator.imitate_harmony(
-        x_soprano_sample, y_alto, y_tenor, y_bass)
+        x_soprano_sample[0], y_alto[0], y_tenor[0], y_bass[0])
 
     generated_note_infos = note_generator.generate_note_info(generated_song)
     original_note_infos = note_generator.generate_note_info(original_song)
