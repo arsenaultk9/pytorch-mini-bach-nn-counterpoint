@@ -30,7 +30,7 @@ for song_index in range(9):
     print(f'Generating song {song_index + 1}')
 
     harmony_generator = NetworkHarmonyGenerator(network)
-    (x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[song_index:song_index+4]
+    (x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[song_index:song_index+constants.BATCH_SIZE]
 
     generated_song = harmony_generator.generate_harmony(x_soprano_sample)
     original_song = harmony_generator.imitate_harmony(
