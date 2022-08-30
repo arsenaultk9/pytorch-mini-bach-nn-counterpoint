@@ -38,6 +38,8 @@ for song_index in range(9):
 
     generated_note_infos = note_generator.generate_note_info(generated_song)
     original_note_infos = note_generator.generate_note_info(original_song)
+    melody_note_infos = note_generator.generate_note_info_melody(original_song)
 
     midi_generator.generate_midi(f'generated_file{song_index + 1}.mid', generated_note_infos)
     midi_generator.generate_midi(f'original_file{song_index + 1}.mid', original_note_infos)
+    midi_generator.generate_midi(f'melody_file{song_index + 1}.mid', melody_note_infos)

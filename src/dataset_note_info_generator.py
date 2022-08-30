@@ -54,3 +54,13 @@ def generate_note_info(dataset_song) -> List[List[NoteInfo]]:
         track_note_infos.append(note_infos)
 
     return track_note_infos
+
+
+def generate_note_info_melody(dataset_song) -> List[List[NoteInfo]]:
+    track_note_infos = []
+
+    for track_number in range(1):
+        note_infos = get_track_notes(dataset_song, track_number)
+        track_note_infos.append(note_infos)
+
+    return track_note_infos
