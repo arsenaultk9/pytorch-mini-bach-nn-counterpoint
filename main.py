@@ -1,4 +1,5 @@
 import torch
+import random
 from torch.utils.data import DataLoader
 
 import src.midi_generator as midi_generator
@@ -26,8 +27,11 @@ for epoch in range(1, constants.EPOCHS + 1):
 network.eval()
 
 # ==== Code to generate to midi. ====
-for song_index in range(9):
-    print(f'Generating song {song_index + 1}')
+random_start_seed = random.randrange(0, len(dataset) - constants.BATCH_SIZE)
+
+for song_index in range(random_start_seed, random_start_seed + 9):
+    file_index = song_index - random_start_seed + 1
+    print(f'Generating song {file_index}')
 
     harmony_generator = NetworkHarmonyGenerator(network)
     (x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[song_index:song_index+constants.BATCH_SIZE]
@@ -40,6 +44,6 @@ for song_index in range(9):
     original_note_infos = note_generator.generate_note_info(original_song)
     melody_note_infos = note_generator.generate_note_info_melody(original_song)
 
-    midi_generator.generate_midi(f'generated_file{song_index + 1}.mid', generated_note_infos)
-    midi_generator.generate_midi(f'original_file{song_index + 1}.mid', original_note_infos)
-    midi_generator.generate_midi(f'melody_file{song_index + 1}.mid', melody_note_infos)
+    midi_generator.generate_midi(f'generated_file{file_index}.mid', generated_note_infos)
+    midi_generator.generate_midi(f'original_file{file_index}.mid', original_note_infos)
+    midi_generator.generate_midi(f'melody_file{file_index}.mid', melody_note_infos)
