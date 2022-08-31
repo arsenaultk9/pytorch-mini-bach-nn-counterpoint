@@ -16,7 +16,9 @@ def load_data():
     sequence_data['tenor'] = []
     sequence_data['bass'] = []
 
-    for song in midi_data['train']:
+    all_training_data = midi_data['train'] + midi_data['test'] + midi_data['valid'] 
+
+    for song in all_training_data:
         for voice in voices.values():
             one_hot_encoding = get_to_one_hot_encoding(song, voice)
             sequences_split = split_into_sequences(one_hot_encoding)

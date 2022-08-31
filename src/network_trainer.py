@@ -37,6 +37,9 @@ class NetworkTrainer:
         self.network.train()
 
         for batch_idx, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.data_loader):
+            if len(x_soprano) < constants.BATCH_SIZE:
+                continue # Do not support smaller tensors that are not of batch size as first dimension
+
             x_soprano = x_soprano.to(device)
             y_alto = y_alto.to(device)
             y_tenor = y_tenor.to(device)
@@ -65,9 +68,11 @@ class NetworkTrainer:
                 total_right_predictions = alto_right_predictions + \
                     tenor_right_predictions + bass_right_predictions
 
+                current_item = batch_idx * len(x_soprano)
+
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tTotal Right Predictions: {}'.format(
                     epoch,
-                    batch_idx * len(x_soprano),
+                    f"{current_item:04d}" ,
                     len(self.data_loader.dataset),
                     100. * batch_idx / len(self.data_loader),
                     loss_total.item(),

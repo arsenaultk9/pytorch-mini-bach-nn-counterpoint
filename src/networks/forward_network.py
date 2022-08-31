@@ -11,7 +11,7 @@ class ForwardNetwork(nn.Module):
 
         self.input = nn.Linear(constants.SEQUENCE_LENGTH * 22, 200)
         self.hidden1 = nn.Linear(200, 200)
-        self.dropout1 = nn.Dropout(0.5)
+        self.dropout1 = nn.Dropout(0.25)
         self.hidden2 = nn.Linear(200, 200)
         self.dropout2 = nn.Dropout(0.25)
 
