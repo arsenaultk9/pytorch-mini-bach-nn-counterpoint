@@ -26,6 +26,11 @@ for epoch in range(1, constants.EPOCHS + 1):
 # Turn off training mode & switch to model evaluation
 network.eval()
 
+# === Save model for production use ===
+(x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[0:constants.BATCH_SIZE]
+traced_script_module = torch.jit.trace(network.forward, x_soprano_sample.to(device))
+traced_script_module.save("result_model/satb_forward_network.pt")
+
 # ==== Code to generate to midi. ====
 random_start_seed = random.randrange(0, len(dataset) - constants.BATCH_SIZE)
 
@@ -47,3 +52,4 @@ for song_index in range(random_start_seed, random_start_seed + 9):
     midi_generator.generate_midi(f'generated_file{file_index}.mid', generated_note_infos)
     midi_generator.generate_midi(f'original_file{file_index}.mid', original_note_infos)
     midi_generator.generate_midi(f'melody_file{file_index}.mid', melody_note_infos)
+
