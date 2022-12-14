@@ -14,32 +14,38 @@ from src.network_harmony_generator import NetworkHarmonyGenerator
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
-midi_data, dataset = load_data()
+midi_data, train_dataset, test_dataset, valid_dataset = load_data()
 
-data_loader = DataLoader(dataset, constants.BATCH_SIZE, constants.SHUFFLE_DATA)
+train_data_loader = DataLoader(train_dataset, constants.BATCH_SIZE, constants.SHUFFLE_DATA)
+test_data_loader = DataLoader(test_dataset, constants.BATCH_SIZE, constants.SHUFFLE_DATA)
+valid_data_loader = DataLoader(valid_dataset, constants.BATCH_SIZE, constants.SHUFFLE_DATA)
+
 network = ForwardNetwork().to(device)
-trainer = NetworkTrainer(network, data_loader)
+trainer = NetworkTrainer(network, train_data_loader, test_data_loader, valid_data_loader)
 
 for epoch in range(1, constants.EPOCHS + 1):
     trainer.epoch_train(epoch)
+    trainer.epoch_valid(epoch)
+
+trainer.test()
 
 # Turn off training mode & switch to model evaluation
 network.eval()
 
 # === Save model for production use ===
-(x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[0:constants.BATCH_SIZE]
+(x_soprano_sample, y_alto, y_tenor, y_bass) = train_dataset[0:constants.BATCH_SIZE]
 traced_script_module = torch.jit.trace(network.forward, x_soprano_sample.to(device))
 traced_script_module.save("result_model/satb_forward_network.pt")
 
 # ==== Code to generate to midi. ====
-random_start_seed = random.randrange(0, len(dataset) - constants.BATCH_SIZE)
+random_start_seed = random.randrange(0, len(test_dataset) - constants.BATCH_SIZE)
 
 for song_index in range(random_start_seed, random_start_seed + 9):
     file_index = song_index - random_start_seed + 1
     print(f'Generating song {file_index}')
 
     harmony_generator = NetworkHarmonyGenerator(network)
-    (x_soprano_sample, y_alto, y_tenor, y_bass) = dataset[song_index:song_index+constants.BATCH_SIZE]
+    (x_soprano_sample, y_alto, y_tenor, y_bass) = test_dataset[song_index:song_index+constants.BATCH_SIZE]
 
     generated_song = harmony_generator.generate_harmony(x_soprano_sample)
     original_song = harmony_generator.imitate_harmony(
