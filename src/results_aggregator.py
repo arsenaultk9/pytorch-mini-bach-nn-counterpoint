@@ -15,9 +15,9 @@ class ResultsAggregator:
         total_loss = sum(self.total_losses)
         return total_loss / (current_train_item + 1)
 
-    def get_average_right_predictions(self, batch_idx):
+    def get_average_right_predictions(self, sample_count):
         total_right_predictions = sum(self.total_right_predictions)
-        average_right_predictions = total_right_predictions / ((batch_idx / constants.BATCH_LOG_INTERVAL) + 1)
+        average_right_predictions = total_right_predictions / sample_count
 
         return f"{average_right_predictions:.1f}"
 

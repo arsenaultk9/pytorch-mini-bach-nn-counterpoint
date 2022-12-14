@@ -64,6 +64,7 @@ class NetworkTrainer:
                 # Only sample at log because of expensive calculation
                 sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_right_predictions(sample_right_predictions)
+                average_right_predictions = results_aggregator.get_average_right_predictions(((batch_idx / constants.BATCH_LOG_INTERVAL)))
 
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\t\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
                     f"{epoch:03d}",
@@ -71,14 +72,13 @@ class NetworkTrainer:
                     len(self.train_data_loader.dataset),
                     100. * batch_idx / len(self.train_data_loader),
                     results_aggregator.get_average_loss(current_item),
-                    results_aggregator.get_average_right_predictions(batch_idx)))
-
-
+                    average_right_predictions))
 
     def epoch_valid(self, epoch):
         self.network.eval()
 
         results_aggregator = ResultsAggregator()
+        valid_sample_prediction_count = 0
 
         for batch_idx, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.valid_data_loader):
             if len(x_soprano) < constants.BATCH_SIZE:
@@ -98,20 +98,19 @@ class NetworkTrainer:
             current_batch_loss = loss_alto + loss_tenor + loss_bass
             results_aggregator.aggregate_loss(current_batch_loss)
 
-            if batch_idx % constants.BATCH_LOG_INTERVAL == 0 and batch_idx != 0:
-                current_item = batch_idx * len(x_soprano)
+            if batch_idx % constants.VALID_PREDICTION_SAMPLE_RATE == 0 and batch_idx != 0:
+                valid_sample_prediction_count += 1
 
                 # Only sample at log because of expensive calculation
                 sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_right_predictions(sample_right_predictions)
+        
+        average_loss = results_aggregator.get_average_loss(len(self.valid_data_loader.dataset))
+        average_right_predictions = results_aggregator.get_average_right_predictions(valid_sample_prediction_count)
 
-                print('Valid Epoch: {} [{}/{} ({:.0f}%)]\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
-                    f"{epoch:03d}",
-                    f"{current_item:04d}",
-                    len(self.valid_data_loader.dataset),
-                    100. * batch_idx / len(self.valid_data_loader),
-                    results_aggregator.get_average_loss(current_item),
-                    results_aggregator.get_average_right_predictions(batch_idx)))
+        print('Valid Epoch:\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
+            average_loss,
+            average_right_predictions))
 
 
 
@@ -119,8 +118,9 @@ class NetworkTrainer:
         self.network.eval()
 
         results_aggregator = ResultsAggregator()
+        valid_sample_prediction_count = 0
 
-        for batch_idx, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.test_data_loader):
+        for _, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.test_data_loader):
             if len(x_soprano) < constants.BATCH_SIZE:
                 continue  # Do not support smaller tensors that are not of batch size as first dimension
 
@@ -138,16 +138,13 @@ class NetworkTrainer:
             current_batch_loss = loss_alto + loss_tenor + loss_bass
             results_aggregator.aggregate_loss(current_batch_loss)
 
-            if batch_idx % constants.BATCH_LOG_INTERVAL == 0 and batch_idx != 0:
-                current_item = batch_idx * len(x_soprano)
+            sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+            results_aggregator.aggregate_right_predictions(sample_right_predictions)
+            valid_sample_prediction_count += 1
 
-                # Only sample at log because of expensive calculation
-                sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
-                results_aggregator.aggregate_right_predictions(sample_right_predictions)
+        average_loss = results_aggregator.get_average_loss(len(self.test_data_loader.dataset))
+        average_right_predictions = results_aggregator.get_average_right_predictions(valid_sample_prediction_count)
 
-                print('Test Epoch: [{}/{} ({:.0f}%)]\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
-                    f"{current_item:04d}",
-                    len(self.test_data_loader.dataset),
-                    100. * batch_idx / len(self.test_data_loader),
-                    results_aggregator.get_average_loss(current_item),
-                    results_aggregator.get_average_right_predictions(batch_idx)))
+        print('Test Epoch: Average Loss: {:.6f}\tAverage Right Predictions: {}'.format(
+            average_loss,
+            average_right_predictions))
