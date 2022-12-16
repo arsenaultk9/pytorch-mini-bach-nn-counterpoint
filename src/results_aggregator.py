@@ -1,4 +1,5 @@
-import src.constants as constants
+from torch.utils.tensorboard import SummaryWriter
+writer = SummaryWriter()
 
 class ResultsAggregator:
     def __init__(self):
@@ -20,4 +21,12 @@ class ResultsAggregator:
         average_right_predictions = total_right_predictions / sample_count
 
         return f"{average_right_predictions:.1f}"
+
+
+    def update_plots(self, mode, current_train_item, sample_count, epoch):
+        average_loss = self.get_average_loss(current_train_item)
+        average_right_predictions = self.get_average_loss(sample_count)
+
+        writer.add_scalar(f'Loss/{mode}', average_loss, epoch)
+        writer.add_scalar(f'Accuracy/{mode}', average_right_predictions, epoch)
 

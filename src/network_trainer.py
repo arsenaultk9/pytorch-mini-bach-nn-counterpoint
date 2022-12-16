@@ -34,6 +34,7 @@ class NetworkTrainer:
         self.network.train()
 
         results_aggregator = ResultsAggregator()
+        valid_sample_prediction_count = 0
 
         for batch_idx, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.train_data_loader):
             if len(x_soprano) < constants.BATCH_SIZE:
@@ -59,12 +60,15 @@ class NetworkTrainer:
             self.optimizer.step()
 
             if batch_idx % constants.BATCH_LOG_INTERVAL == 0 and batch_idx != 0:
+                valid_sample_prediction_count += 1
                 current_item = batch_idx * len(x_soprano)
 
                 # Only sample at log because of expensive calculation
                 sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_right_predictions(sample_right_predictions)
-                average_right_predictions = results_aggregator.get_average_right_predictions(((batch_idx / constants.BATCH_LOG_INTERVAL)))
+
+                current_sample = batch_idx / constants.BATCH_LOG_INTERVAL
+                average_right_predictions = results_aggregator.get_average_right_predictions(current_sample)
 
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\t\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
                     f"{epoch:03d}",
@@ -73,6 +77,8 @@ class NetworkTrainer:
                     100. * batch_idx / len(self.train_data_loader),
                     results_aggregator.get_average_loss(current_item),
                     average_right_predictions))
+
+        results_aggregator.update_plots('train', len(self.train_data_loader.dataset), valid_sample_prediction_count, epoch)
 
     def epoch_valid(self, epoch):
         self.network.eval()
@@ -108,7 +114,10 @@ class NetworkTrainer:
         average_loss = results_aggregator.get_average_loss(len(self.valid_data_loader.dataset))
         average_right_predictions = results_aggregator.get_average_right_predictions(valid_sample_prediction_count)
 
-        print('Valid Epoch:\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
+        results_aggregator.update_plots('valid', len(self.valid_data_loader.dataset), valid_sample_prediction_count, epoch)
+
+        print('Valid Epoch: {}\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
+            f"{epoch:03d}",
             average_loss,
             average_right_predictions))
 
