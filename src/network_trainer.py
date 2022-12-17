@@ -67,16 +67,21 @@ class NetworkTrainer:
                 sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_right_predictions(sample_right_predictions)
 
+                sample_note_accuracy = metrics.get_sample_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+                results_aggregator.aggregate_note_accuracy(sample_note_accuracy)
+
                 current_sample = batch_idx / constants.BATCH_LOG_INTERVAL
                 average_right_predictions = results_aggregator.get_average_right_predictions(current_sample)
+                average_note_accuracy = results_aggregator.get_average_note_accuracy(current_sample)
 
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\t\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\t\tAverage Loss: {:.6f}\tAverage Right Predictions: {}\tAverage Note Accuracy: {}'.format(
                     f"{epoch:03d}",
                     f"{current_item:04d}",
                     len(self.train_data_loader.dataset),
                     100. * batch_idx / len(self.train_data_loader),
                     results_aggregator.get_average_loss(current_item),
-                    average_right_predictions))
+                    f"{average_right_predictions:.1f}",
+                    f"{average_note_accuracy:.1f}"))
 
         results_aggregator.update_plots('train', len(self.train_data_loader.dataset), valid_sample_prediction_count, epoch)
 
@@ -110,17 +115,21 @@ class NetworkTrainer:
                 # Only sample at log because of expensive calculation
                 sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_right_predictions(sample_right_predictions)
+
+                sample_note_accuracy = metrics.get_sample_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+                results_aggregator.aggregate_note_accuracy(sample_note_accuracy)
         
         average_loss = results_aggregator.get_average_loss(len(self.valid_data_loader.dataset))
         average_right_predictions = results_aggregator.get_average_right_predictions(valid_sample_prediction_count)
+        average_note_accuracy = results_aggregator.get_average_note_accuracy(valid_sample_prediction_count)
 
         results_aggregator.update_plots('valid', len(self.valid_data_loader.dataset), valid_sample_prediction_count, epoch)
 
-        print('Valid Epoch: {}\tAverage Loss: {:.6f}\tAverage Right Predictions: {}'.format(
+        print('Valid Epoch: {}\tAverage Loss: {:.6f}\tAverage Right Predictions: {}\tAverage Note Accuracy: {}'.format(
             f"{epoch:03d}",
             average_loss,
-            average_right_predictions))
-
+            f"{average_right_predictions:.1f}",
+            f"{average_note_accuracy:.1f}"))
 
 
     def test(self):
@@ -149,11 +158,17 @@ class NetworkTrainer:
 
             sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
             results_aggregator.aggregate_right_predictions(sample_right_predictions)
+
+            sample_note_accuracy = metrics.get_sample_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+            results_aggregator.aggregate_note_accuracy(sample_note_accuracy)
+
             valid_sample_prediction_count += 1
 
         average_loss = results_aggregator.get_average_loss(len(self.test_data_loader.dataset))
         average_right_predictions = results_aggregator.get_average_right_predictions(valid_sample_prediction_count)
+        average_note_accuracy = results_aggregator.get_average_note_accuracy(valid_sample_prediction_count)
 
-        print('Test Epoch: Average Loss: {:.6f}\tAverage Right Predictions: {}'.format(
+        print('Test Epoch: Average Loss: {:.6f}\tAverage Right Predictions: {}\tAverage Note Accuracy: {}'.format(
             average_loss,
-            average_right_predictions))
+            f"{average_right_predictions:.1f}",
+            f"{average_note_accuracy:.1f}"))
