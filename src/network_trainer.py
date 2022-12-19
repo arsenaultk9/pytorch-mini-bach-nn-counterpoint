@@ -34,7 +34,7 @@ class NetworkTrainer:
         self.network.train()
 
         results_aggregator = ResultsAggregator()
-        valid_sample_prediction_count = 0
+        result_agg_sample_size = 0
 
         for batch_idx, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.train_data_loader):
             if len(x_soprano) < constants.BATCH_SIZE:
@@ -60,19 +60,18 @@ class NetworkTrainer:
             self.optimizer.step()
 
             if batch_idx % constants.BATCH_LOG_INTERVAL == 0 and batch_idx != 0:
-                valid_sample_prediction_count += 1
                 current_item = batch_idx * len(x_soprano)
+                result_agg_sample_size += len(x_soprano)
 
                 # Only sample at log because of expensive calculation
-                sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+                sample_right_predictions = metrics.get_batch_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_right_predictions(sample_right_predictions)
 
-                sample_note_accuracy = metrics.get_sample_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+                sample_note_accuracy = metrics.get_batch_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_note_accuracy(sample_note_accuracy)
 
-                current_sample = batch_idx / constants.BATCH_LOG_INTERVAL
-                average_right_predictions = results_aggregator.get_average_right_predictions(current_sample)
-                average_note_accuracy = results_aggregator.get_average_note_accuracy(current_sample)
+                average_right_predictions = results_aggregator.get_average_right_predictions(result_agg_sample_size)
+                average_note_accuracy = results_aggregator.get_average_note_accuracy(result_agg_sample_size)
 
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\t\tAverage Loss: {:.6f}\tAverage Right Predictions: {}\tAverage Note Accuracy: {}'.format(
                     f"{epoch:03d}",
@@ -83,13 +82,13 @@ class NetworkTrainer:
                     f"{average_right_predictions:.1f}",
                     f"{average_note_accuracy:.1f}"))
 
-        results_aggregator.update_plots('train', len(self.train_data_loader.dataset), valid_sample_prediction_count, epoch)
+        results_aggregator.update_plots('train', len(self.train_data_loader.dataset), result_agg_sample_size, epoch)
 
     def epoch_valid(self, epoch):
         self.network.eval()
 
         results_aggregator = ResultsAggregator()
-        valid_sample_prediction_count = 0
+        result_agg_sample_size = 0
 
         for batch_idx, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.valid_data_loader):
             if len(x_soprano) < constants.BATCH_SIZE:
@@ -110,20 +109,20 @@ class NetworkTrainer:
             results_aggregator.aggregate_loss(current_batch_loss)
 
             if batch_idx % constants.VALID_PREDICTION_SAMPLE_RATE == 0 and batch_idx != 0:
-                valid_sample_prediction_count += 1
+                result_agg_sample_size += len(x_soprano)
 
                 # Only sample at log because of expensive calculation
-                sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+                sample_right_predictions = metrics.get_batch_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_right_predictions(sample_right_predictions)
 
-                sample_note_accuracy = metrics.get_sample_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+                sample_note_accuracy = metrics.get_batch_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
                 results_aggregator.aggregate_note_accuracy(sample_note_accuracy)
         
         average_loss = results_aggregator.get_average_loss(len(self.valid_data_loader.dataset))
-        average_right_predictions = results_aggregator.get_average_right_predictions(valid_sample_prediction_count)
-        average_note_accuracy = results_aggregator.get_average_note_accuracy(valid_sample_prediction_count)
+        average_right_predictions = results_aggregator.get_average_right_predictions(result_agg_sample_size)
+        average_note_accuracy = results_aggregator.get_average_note_accuracy(result_agg_sample_size)
 
-        results_aggregator.update_plots('valid', len(self.valid_data_loader.dataset), valid_sample_prediction_count, epoch)
+        results_aggregator.update_plots('valid', len(self.valid_data_loader.dataset), result_agg_sample_size, epoch)
 
         print('Valid Epoch: {}\tAverage Loss: {:.6f}\tAverage Right Predictions: {}\tAverage Note Accuracy: {}'.format(
             f"{epoch:03d}",
@@ -136,7 +135,6 @@ class NetworkTrainer:
         self.network.eval()
 
         results_aggregator = ResultsAggregator()
-        valid_sample_prediction_count = 0
 
         for _, (x_soprano, y_alto, y_tenor, y_bass) in enumerate(self.test_data_loader):
             if len(x_soprano) < constants.BATCH_SIZE:
@@ -156,17 +154,17 @@ class NetworkTrainer:
             current_batch_loss = loss_alto + loss_tenor + loss_bass
             results_aggregator.aggregate_loss(current_batch_loss)
 
-            sample_right_predictions = metrics.get_sample_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+            sample_right_predictions = metrics.get_batch_right_predictions([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
             results_aggregator.aggregate_right_predictions(sample_right_predictions)
 
-            sample_note_accuracy = metrics.get_sample_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
+            sample_note_accuracy = metrics.get_batch_note_accuracy([output_alto, output_tenor, output_bass], [y_alto, y_tenor, y_bass])
             results_aggregator.aggregate_note_accuracy(sample_note_accuracy)
 
-            valid_sample_prediction_count += 1
+        test_item_count = len(self.test_data_loader.dataset)
 
-        average_loss = results_aggregator.get_average_loss(len(self.test_data_loader.dataset))
-        average_right_predictions = results_aggregator.get_average_right_predictions(valid_sample_prediction_count)
-        average_note_accuracy = results_aggregator.get_average_note_accuracy(valid_sample_prediction_count)
+        average_loss = results_aggregator.get_average_loss(test_item_count)
+        average_right_predictions = results_aggregator.get_average_right_predictions(test_item_count)
+        average_note_accuracy = results_aggregator.get_average_note_accuracy(test_item_count)
 
         print('Test Epoch: Average Loss: {:.6f}\tAverage Right Predictions: {}\tAverage Note Accuracy: {}'.format(
             average_loss,

@@ -13,7 +13,7 @@ class ForwardNetwork(nn.Module):
         self.hidden1 = nn.Linear(200, 200)
         self.dropout1 = nn.Dropout(0.5)
         self.hidden2 = nn.Linear(200, 200)
-        self.dropout2 = nn.Dropout(0.5)
+        self.dropout2 = nn.Dropout(0.25)
 
         self.forward_alto = nn.Linear(200, constants.SEQUENCE_LENGTH * 22)
         self.forward_tenor = nn.Linear(200, constants.SEQUENCE_LENGTH * 22)
