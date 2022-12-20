@@ -24,8 +24,9 @@ class NetworkTrainer:
         self.test_data_loader = test_data_loader
         self.valid_data_loader = valid_data_loader
 
-        self.optimizer = optim.SGD(network.parameters(), lr=0.01, momentum=0.9)
         self.loss_function = F.NLLLoss()
+        self.optimizer = optim.SGD(network.parameters(), lr=0.01, momentum=0.9)
+        self.lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, patience=3)
 
     def get_instrument_loss(self, model_output, y_target):
         return self.loss_function(model_output, y_target)
@@ -119,6 +120,12 @@ class NetworkTrainer:
                 results_aggregator.aggregate_note_accuracy(sample_note_accuracy)
         
         average_loss = results_aggregator.get_average_loss(len(self.valid_data_loader.dataset))
+
+        if constants.APPLY_LR_SCHEDULER:
+            self.lr_scheduler.step(average_loss)
+            learning_rate = self.lr_scheduler.optimizer.param_groups[0]['lr']
+            print(f'learning_rate: {learning_rate}')
+
         average_right_predictions = results_aggregator.get_average_right_predictions(result_agg_sample_size)
         average_note_accuracy = results_aggregator.get_average_note_accuracy(result_agg_sample_size)
 
