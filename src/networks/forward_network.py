@@ -11,9 +11,9 @@ class ForwardNetwork(nn.Module):
 
         self.input = nn.Linear(constants.SEQUENCE_LENGTH * 22, 200)
         self.hidden1 = nn.Linear(200, 200)
-        self.dropout1 = nn.Dropout(0.25)
+        self.dropout1 = nn.Dropout(0.5)
         self.hidden2 = nn.Linear(200, 200)
-        self.dropout2 = nn.Dropout(0.25)
+        self.dropout2 = nn.Dropout(0.5)
 
         self.forward_alto = nn.Linear(200, constants.SEQUENCE_LENGTH * 22)
         self.forward_tenor = nn.Linear(200, constants.SEQUENCE_LENGTH * 22)
@@ -23,9 +23,11 @@ class ForwardNetwork(nn.Module):
         x = torch.flatten(x, start_dim=1)
 
         x = self.input(x)
+
         x = self.hidden1(x)
         x = F.relu(x)
         x = self.dropout1(x)
+
         x = self.hidden2(x)
         x = F.relu(x)
         x = self.dropout2(x)
