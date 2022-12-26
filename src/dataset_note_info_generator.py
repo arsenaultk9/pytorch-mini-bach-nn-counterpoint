@@ -6,7 +6,8 @@ def get_next_note_duration_and_note(dataset_song, track_number: int):
     cur_pos = 0
     cur_note_pos = 0
     cur_length = 0
-    cur_note_number = dataset_song[0][track_number]
+    cur_note_number = dataset_song[0][track_number] if len(
+            dataset_song[0]) > track_number else None
 
     for note_index in range(len(dataset_song)):
         current_notes_tuple = dataset_song[note_index]
