@@ -26,5 +26,5 @@ for index, song_tuple_data in enumerate(song_tuple_datas):
 midi_data['train'] = song_tuple_datas_augmented
 
 # Store data (serialize)
-with open('./data/augmented.pkl', 'wb') as handle:
+with open('./data/scales_augmented.pkl', 'wb') as handle:
     pickle.dump(midi_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
