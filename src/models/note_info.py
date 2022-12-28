@@ -16,19 +16,20 @@ class NoteInfo:
         self.midi_channel = note_data[3]
 
     def is_on_at_beat(self, beat):
-        if(beat < self.starting_beat - constants.BEAT_SEGMENT_ACCEPTED_ROUNDING_ERROR):
+        if (beat < self.starting_beat - constants.BEAT_SEGMENT_ACCEPTED_ROUNDING_ERROR):
             return False
 
         inclusive_end = self.starting_beat + \
             self.length - (1/constants.SEGMENTS_PER_BEAT) + \
             constants.BEAT_SEGMENT_ACCEPTED_ROUNDING_ERROR
 
-        if(beat > inclusive_end):
+        if (beat > inclusive_end):
             return False
 
         return True
 
-
+    def with_new_pitch(self, new_pitch):
+        return NoteInfo.create(self.starting_beat, self.length, new_pitch)
 
     def __str__(self):
         return "starting_beat: {}, length: {}, pitch: {}".format(self.starting_beat, self.length, self.pitch)

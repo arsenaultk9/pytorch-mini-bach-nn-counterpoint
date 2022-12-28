@@ -1,5 +1,8 @@
 from torch.utils.tensorboard import SummaryWriter
-writer = SummaryWriter()
+import src.constants as constants
+
+if constants.LOG_TENSORBOARD:
+    writer = SummaryWriter()
 
 class ResultsAggregator:
     def __init__(self):
@@ -34,6 +37,9 @@ class ResultsAggregator:
 
 
     def update_plots(self, mode, item_count, result_agg_sample_size, epoch):
+        if not constants.LOG_TENSORBOARD:
+            return
+
         average_loss = self.get_average_loss(item_count)
         average_right_predictions = self.get_average_right_predictions(result_agg_sample_size)
         average_note_accuracy = self.get_average_note_accuracy(result_agg_sample_size)

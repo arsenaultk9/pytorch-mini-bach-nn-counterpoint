@@ -12,3 +12,7 @@ class Voice:
             return None
 
         return tensor_position + self.range.min_note - 1
+
+
+    def range_and_silence_length(self):
+        return self.range.range_and_silence_length()
