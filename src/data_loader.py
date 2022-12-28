@@ -26,7 +26,7 @@ def get_dataset(song_data):
 
 
 def load_data():
-    with open('./data/jsb-chorales-16th.pkl', 'rb') as file:
+    with open('./data/scales_note_join_augmented.pkl', 'rb') as file:
         midi_data = pickle.load(file, encoding="latin1")
 
     return midi_data, get_dataset(midi_data['train']), get_dataset(midi_data['test']), get_dataset(midi_data['valid'])

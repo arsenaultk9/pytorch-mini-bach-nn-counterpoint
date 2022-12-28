@@ -12,7 +12,7 @@ def get_notes_joined(song_voices: List[List[NoteInfo]], modification_prob: float
         for note in voice_notes:
             # Only consider notes not on measure beats that are smaller than one beat
             if note.starting_beat % 1.0 == 0 or note.length >= 1.0:
-                voice_notes_joined.append(note)
+                voice_notes_joined.append(note.copy()) # Copy notes to avoid mutation in other augmentations.
                 continue
 
             keep_prob = random.uniform(0, 1)
@@ -24,7 +24,7 @@ def get_notes_joined(song_voices: List[List[NoteInfo]], modification_prob: float
                 last_note.length += note.length
                 continue
 
-            voice_notes_joined.append(note)
+            voice_notes_joined.append(note.copy())
 
 
         voices_notes_joined.append(voice_notes_joined)
